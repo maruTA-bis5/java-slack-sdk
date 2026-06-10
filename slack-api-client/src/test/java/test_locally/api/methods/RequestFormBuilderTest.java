@@ -4,6 +4,7 @@ import com.slack.api.methods.RequestFormBuilder;
 import com.slack.api.methods.request.calls.CallsAddRequest;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.request.chat.ChatUnfurlRequest;
+import com.slack.api.methods.request.files.FilesCompleteUploadExternalRequest;
 import com.slack.api.model.Attachment;
 import com.slack.api.model.CallParticipant;
 import com.slack.api.model.block.LayoutBlock;
@@ -164,6 +165,89 @@ public class RequestFormBuilderTest {
         final int userAuthBlocksIndexInFrom = 0;
         assertThat(form.name(userAuthBlocksIndexInFrom), is("unfurls"));
         assertThat(form.value(userAuthBlocksIndexInFrom), is("{\"key\":{}}"));
+    }
+
+    @Test
+    public void testFilesCompleteUploadExternalBlocksSerialization_blocksList() {
+        // GIVEN
+        FilesCompleteUploadExternalRequest req = FilesCompleteUploadExternalRequest.builder().build();
+        req.setFiles(new ArrayList<FilesCompleteUploadExternalRequest.FileDetails>() {{
+            add(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F1").build());
+        }});
+        req.setBlocks(new ArrayList<LayoutBlock>() {{
+            add(MyTestBlock.builder().build());
+        }});
+
+        // WHEN
+        FormBody form = RequestFormBuilder.toForm(req).build();
+
+        // THEN
+        boolean found = false;
+        String value = null;
+        for (int i = 0; i < form.size(); i++) {
+            if ("blocks".equals(form.name(i))) {
+                found = true;
+                value = form.value(i);
+                break;
+            }
+        }
+        assertThat(found, is(true));
+        assertThat(value, is("[{\"type\":\"myTestBlock\"}]"));
+    }
+
+    @Test
+    public void testFilesCompleteUploadExternalBlocksSerialization_blocksAsString() {
+        // GIVEN
+        FilesCompleteUploadExternalRequest req = FilesCompleteUploadExternalRequest.builder().build();
+        req.setFiles(new ArrayList<FilesCompleteUploadExternalRequest.FileDetails>() {{
+            add(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F1").build());
+        }});
+        req.setBlocksAsString("[{\"type\":\"myTestBlockFromString\"}]");
+
+        // WHEN
+        FormBody form = RequestFormBuilder.toForm(req).build();
+
+        // THEN
+        boolean found = false;
+        String value = null;
+        for (int i = 0; i < form.size(); i++) {
+            if ("blocks".equals(form.name(i))) {
+                found = true;
+                value = form.value(i);
+                break;
+            }
+        }
+        assertThat(found, is(true));
+        assertThat(value, is("[{\"type\":\"myTestBlockFromString\"}]"));
+    }
+
+    @Test
+    public void testFilesCompleteUploadExternalBlocksSerialization_blocksAsStringWins() {
+        // GIVEN
+        FilesCompleteUploadExternalRequest req = FilesCompleteUploadExternalRequest.builder().build();
+        req.setFiles(new ArrayList<FilesCompleteUploadExternalRequest.FileDetails>() {{
+            add(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F1").build());
+        }});
+        req.setBlocks(new ArrayList<LayoutBlock>() {{
+            add(MyTestBlock.builder().build());
+        }});
+        req.setBlocksAsString("[{\"type\":\"winningBlock\"}]");
+
+        // WHEN
+        FormBody form = RequestFormBuilder.toForm(req).build();
+
+        // THEN
+        boolean found = false;
+        String value = null;
+        for (int i = 0; i < form.size(); i++) {
+            if ("blocks".equals(form.name(i))) {
+                found = true;
+                value = form.value(i);
+                break;
+            }
+        }
+        assertThat(found, is(true));
+        assertThat(value, is("[{\"type\":\"winningBlock\"}]"));
     }
 
     @Data

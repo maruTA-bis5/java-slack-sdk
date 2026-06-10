@@ -9,6 +9,7 @@ import com.slack.api.methods.request.files.comments.FilesCommentsDeleteRequest;
 import com.slack.api.methods.request.files.comments.FilesCommentsEditRequest;
 import com.slack.api.methods.response.files.FilesUploadResponse;
 import com.slack.api.methods.response.files.FilesUploadV2Response;
+import com.slack.api.model.block.SectionBlock;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
@@ -61,6 +62,21 @@ public class FilesTest {
                     .isOk(), is(true));
             assertThat(slack.methods(ValidToken).filesUploadV2(r -> r.content("something").filename("name").channel("C123").title("title"))
                     .isOk(), is(true));
+
+            // exercise filesUploadV2 with blocks and blocksAsString
+            try {
+                assertThat(slack.methods(ValidToken).filesUploadV2(r -> r.content("something").filename("name").channel("C123").title("title").blocks(Arrays.asList(SectionBlock.builder().build())))
+                        .isOk(), is(true));
+            } catch (Exception e) {
+                log.error("filesUploadV2 with blocks failed", e);
+            }
+            try {
+                assertThat(slack.methods(ValidToken).filesUploadV2(r -> r.content("something").filename("name").channel("C123").title("title").blocksAsString("[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"test\"}}]"))
+                        .isOk(), is(true));
+            } catch (Exception e) {
+                log.error("filesUploadV2 with blocksAsString failed", e);
+            }
+
         } catch (Exception e) {
             log.error("Failed to upload files to the mock server", e);
         }
@@ -71,6 +87,19 @@ public class FilesTest {
                         .channelId("C111")
                         .initialComment("Here are files!")
                 ).isOk(), is(true));
+
+        // exercise filesCompleteUploadExternal with blocks and blocksAsString
+        assertThat(slack.methods(ValidToken).filesCompleteUploadExternal(r -> r
+                .files(Arrays.asList(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F222").build()))
+                .channelId("C222")
+                .blocks(Arrays.asList(SectionBlock.builder().build()))
+        ).isOk(), is(true));
+
+        assertThat(slack.methods(ValidToken).filesCompleteUploadExternal(r -> r
+                .files(Arrays.asList(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F333").build()))
+                .channelId("C333")
+                .blocksAsString("[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"test\"}}]")
+        ).isOk(), is(true));
     }
 
     @Test
@@ -91,6 +120,21 @@ public class FilesTest {
                     .get().isOk(), is(true));
             assertThat(slack.methodsAsync(ValidToken).filesUploadV2(r -> r.content("something").filename("name").channel("C123").title("title"))
                     .get().isOk(), is(true));
+
+            // exercise async filesUploadV2 with blocks and blocksAsString
+            try {
+                assertThat(slack.methodsAsync(ValidToken).filesUploadV2(r -> r.content("something").filename("name").channel("C123").title("title").blocks(Arrays.asList(SectionBlock.builder().build())))
+                        .get().isOk(), is(true));
+            } catch (Exception e) {
+                log.error("async filesUploadV2 with blocks failed", e);
+            }
+            try {
+                assertThat(slack.methodsAsync(ValidToken).filesUploadV2(r -> r.content("something").filename("name").channel("C123").title("title").blocksAsString("[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"test\"}}]"))
+                        .get().isOk(), is(true));
+            } catch (Exception e) {
+                log.error("async filesUploadV2 with blocksAsString failed", e);
+            }
+
         } catch (Exception e) {
             log.error("Failed to upload files to the mock server", e);
         }
@@ -100,6 +144,19 @@ public class FilesTest {
                 .files(Arrays.asList(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F111").build()))
                 .channelId("C111")
                 .initialComment("Here are files!")
+        ).get().isOk(), is(true));
+
+        // exercise async filesCompleteUploadExternal with blocks and blocksAsString
+        assertThat(slack.methodsAsync(ValidToken).filesCompleteUploadExternal(r -> r
+                .files(Arrays.asList(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F222").build()))
+                .channelId("C222")
+                .blocks(Arrays.asList(SectionBlock.builder().build()))
+        ).get().isOk(), is(true));
+
+        assertThat(slack.methodsAsync(ValidToken).filesCompleteUploadExternal(r -> r
+                .files(Arrays.asList(FilesCompleteUploadExternalRequest.FileDetails.builder().id("F333").build()))
+                .channelId("C333")
+                .blocksAsString("[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"test\"}}]")
         ).get().isOk(), is(true));
     }
 

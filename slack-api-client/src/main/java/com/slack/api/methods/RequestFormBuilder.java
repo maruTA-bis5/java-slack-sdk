@@ -2259,6 +2259,15 @@ public class RequestFormBuilder {
             setIfNotNull("channel_id", req.getChannelId(), form);
         }
         setIfNotNull("initial_comment", req.getInitialComment(), form);
+        if (req.getBlocksAsString() != null) {
+            form.add("blocks", req.getBlocksAsString());
+        } else if (req.getBlocks() != null) {
+            String json = getJsonWithGsonAnonymInnerClassHandling(req.getBlocks());
+            form.add("blocks", json);
+        }
+        if (req.getBlocksAsString() != null && req.getBlocks() != null) {
+            log.warn("Although you set both blocksAsString and blocks, only blocksAsString was used.");
+        }
         setIfNotNull("thread_ts", req.getThreadTs(), form);
         return form;
     }

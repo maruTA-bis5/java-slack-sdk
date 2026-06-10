@@ -1,6 +1,7 @@
 package com.slack.api.methods.request.files;
 
 import com.slack.api.methods.SlackApiRequest;
+import com.slack.api.model.block.LayoutBlock;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,6 +46,18 @@ public class FilesCompleteUploadExternalRequest implements SlackApiRequest {
      * Never use a reply's ts value; use its parent instead.
      */
     private String threadTs;
+
+    /**
+     * A list of Block Kit layout blocks to include with the file. When both blocks
+     * and blocksAsString are provided, blocksAsString takes precedence.
+     */
+    private List<LayoutBlock> blocks;
+
+    /**
+     * A pre-serialized JSON string of blocks. If both this and blocks are set,
+     * this value will be used.
+     */
+    private String blocksAsString;
 
     @Data
     @Builder
